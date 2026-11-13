@@ -12,6 +12,16 @@ This prototype has three playable careers:
 
 Each life stage is a day. You wake up as that person, eat what they can afford, get to work, do the job, come home, and sleep. The home changes with money and choices: a shared bunk, a family table, a one-room flat, a house. Two hands-on games (roughly 20 to 40 seconds) sit inside the work. A three-second montage ticks the years when a stage changes. Real-job facts are one line. Each career has three endings. Progress is saved on the device. There is no account and no server.
 
+## Real day (the current slice)
+
+The home screen opens **Wake up as Maya**: one photorealistic Tuesday through her eyes, at `/realday`. Sixteen scenes, one short thought each, time and place in the corner. You swipe the alarm, hold a stretch, and choose between photographs (yogurt or the pastry, push through the ankle or tell the teacher). What you pick changes the rest of the day in the picture: a darker edge when you are tired, a slight shake when it hurts, a warm tint when something lands. There is no stat wall.
+
+The day is data in `src/content/realday/maya.ts`. The small rules that turn a choice into a later thought live in `src/realday/day.ts`. Another career can reuse that shape.
+
+The cartoon careers are still in the app, behind **Cartoon prototype** on the home screen. They are not the front door.
+
+Pictures were generated for this prototype. Ambient loops were synthesized here. See `CREDITS.md`.
+
 ## Run it on a phone with Expo Go
 
 You need Node.js 20 or newer.

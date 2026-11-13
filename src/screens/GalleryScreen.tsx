@@ -13,6 +13,7 @@ export function GalleryScreen() {
   const insets = useSafeAreaInsets();
   const [progress, setProgress] = useState<Progress>(emptyProgress());
   const [armReset, setArmReset] = useState(false);
+  const [showSketches, setShowSketches] = useState(false);
   const found = countUnlocked(progress);
 
   useFocusEffect(
@@ -34,15 +35,34 @@ export function GalleryScreen() {
     >
       <View style={styles.blobPink} />
       <View style={styles.blobTeal} />
-      <Text style={styles.kicker}>A CAREER LIFE SIM</Text>
+      <Text style={styles.kicker}>WAKE UP AS SOMEONE ELSE</Text>
       <Text style={styles.wordmark}>Lifeswap</Text>
-      <Text style={styles.tagline}>Live a thousand lives you'd never get to try.</Text>
+      <Text style={styles.tagline}>Live a day you would never get.</Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Wake up as Maya, 16, ballet student"
+        onPress={() => router.push('/realday')}
+        style={({ pressed }) => [styles.realCta, pressed && styles.pressed]}
+      >
+        <Text style={styles.realKicker}>TODAY</Text>
+        <Text style={styles.realTitle}>Wake up as Maya</Text>
+        <Text style={styles.realMeta}>16 · ballet student · one real day</Text>
+      </Pressable>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => setShowSketches((open) => !open)}
+        style={styles.sketchLink}
+      >
+        <Text style={styles.sketchText}>{showSketches ? 'Hide cartoon prototype' : 'Cartoon prototype'}</Text>
+      </Pressable>
+      {showSketches ? (
+        <>
       <View style={styles.progressPill}>
         <Text style={styles.progressText}>
           {found} of {TOTAL_ENDINGS} endings found
         </Text>
       </View>
-      <Text style={styles.section}>Pick a life</Text>
+      <Text style={styles.section}>Earlier sketches</Text>
       {careers.map((career) => {
         const unlocked = progress.unlocked[career.id] ?? [];
         return (
@@ -109,6 +129,8 @@ export function GalleryScreen() {
       >
         <Text style={styles.resetText}>{armReset ? 'Tap again to erase saved endings' : 'Reset saved progress'}</Text>
       </Pressable>
+        </>
+      ) : null}
     </ScrollView>
   );
 }
@@ -179,6 +201,17 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 6 },
   chip: { borderWidth: 2, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3, maxWidth: 120 },
   chipText: { fontFamily: fonts.bodyBold, fontSize: 11 },
+  realCta: {
+    backgroundColor: '#1C1412',
+    borderRadius: 22,
+    padding: 18,
+    gap: 4,
+  },
+  realKicker: { color: '#E7B7CF', fontFamily: fonts.bodyBold, letterSpacing: 1.6, fontSize: 12 },
+  realTitle: { color: '#FFF6EE', fontFamily: fonts.display, fontSize: 32, lineHeight: 36 },
+  realMeta: { color: '#F3E6D8', fontFamily: fonts.body, fontSize: 15 },
+  sketchLink: { alignSelf: 'center', paddingVertical: 8 },
+  sketchText: { fontFamily: fonts.body, color: '#6D5A73', textDecorationLine: 'underline', fontSize: 14 },
   reset: { alignSelf: 'center', padding: 12 },
   resetText: { fontFamily: fonts.body, color: '#6D5A73', textDecorationLine: 'underline', fontSize: 14 },
 });
