@@ -90,6 +90,24 @@ export type SettingId =
   | 'fire'
   | 'street';
 
+export type DayBeat = 'wake' | 'meal' | 'commute' | 'work' | 'evening' | 'sleep';
+
+export type HomeId = 'shared' | 'family' | 'flat' | 'house' | 'bunk';
+
+export type FoodId =
+  | 'rice'
+  | 'banana'
+  | 'eggs'
+  | 'noodles'
+  | 'salad'
+  | 'toast'
+  | 'packed'
+  | 'leftovers'
+  | 'cereal'
+  | 'chili'
+  | 'coffee'
+  | 'bar';
+
 export type MiniGameKind = 'rhythm' | 'balance' | 'hose' | 'rescue' | 'seating' | 'meltdown';
 
 /** The mini-game picks one of these choice ids. Effects still live on the choice. */
@@ -131,6 +149,14 @@ export type Scene = {
   body: string;
   expression: Expression;
   setting?: SettingId;
+  /** A beat in the day-in-the-life around the job. Omitted scenes are the work itself. */
+  beat?: DayBeat;
+  /** Short role in the first-person line, e.g. "ballet student". */
+  role?: string;
+  /** Where they live for this beat. If omitted, home follows money and flags. */
+  home?: HomeId;
+  /** The meal on the table for a meal beat. */
+  food?: FoodId;
   /** Fact scenes render as a Real Fact card. */
   kind?: 'story' | 'fact';
   /** Citation shown on a fact card. */

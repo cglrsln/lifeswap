@@ -311,7 +311,7 @@ export function playUntilDone(
 ): GameState {
   let state = createRun(career);
   let guard = 0;
-  while (!state.finished && guard < 60) {
+  while (!state.finished && guard < 100) {
     const scene = currentScene(career, state);
     if (!scene) return choose(career, state, '');
     const choiceId = picks[scene.id] ?? scene.choices[0].id;

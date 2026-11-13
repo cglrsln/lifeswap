@@ -288,6 +288,14 @@ describe('careers', () => {
       const games = career.scenes.filter((scene) => scene.miniGame);
       assert.ok(games.length >= 2, `${career.id} needs two mini-games`);
       assert.ok(new Set(games.map((scene) => scene.miniGame?.kind)).size >= 2);
+      for (const stage of ['training', 'first_job', 'mid_career', 'crisis', 'late_career'] as const) {
+        for (const beat of ['wake', 'meal', 'commute', 'evening', 'sleep'] as const) {
+          assert.ok(
+            career.scenes.some((scene) => scene.stage === stage && scene.beat === beat),
+            `${career.id} ${stage} missing ${beat}`,
+          );
+        }
+      }
       const ages = state.sceneLog.map((id) => career.scenes.find((scene) => scene.id === id)!.age);
       for (let i = 1; i < ages.length; i += 1) {
         assert.ok(ages[i] >= ages[i - 1], `${career.id} age went backwards at ${state.sceneLog[i]}`);

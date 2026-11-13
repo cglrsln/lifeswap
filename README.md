@@ -2,7 +2,7 @@
 
 Live a thousand lives you'd never get to try.
 
-Lifeswap is a career life-simulator for iOS and Android. It is not a random life, and it is not a wall of text. You pick a job, then roleplay that person’s working life from training through retirement or death. Scenes are mostly the cartoon and the room, with about ten words. Choices are a swipe or a big icon. Key moments are short hands-on games. Early choices still change stats and flags, so they still change the ending.
+Lifeswap is a career life-simulator for iOS and Android. It is not a random life, and it is not a wall of text. You wake up in someone else’s body and live a life you would never get: the job, and also the apartment, the breakfast, the commute, the bills, the ache, and the small joys. Scenes stay visual. Choices are a swipe or a big icon. Key moments are short hands-on games. Early choices still change stats and flags, so they still change the ending.
 
 This prototype has three playable careers:
 
@@ -10,7 +10,7 @@ This prototype has three playable careers:
 - **Teacher** — Elena Vasquez, from age 22
 - **Firefighter** — Andre Brooks, from age 23
 
-Each run is about 15 to 20 beats, plus two hands-on games (roughly 20 to 40 seconds each) and a three-second montage when a life stage changes. Real-job facts are one line. Each career has three endings. Progress is saved on the device. There is no account and no server.
+Each life stage is a day. You wake up as that person, eat what they can afford, get to work, do the job, come home, and sleep. The home changes with money and choices: a shared bunk, a family table, a one-room flat, a house. Two hands-on games (roughly 20 to 40 seconds) sit inside the work. A three-second montage ticks the years when a stage changes. Real-job facts are one line. Each career has three endings. Progress is saved on the device. There is no account and no server.
 
 ## Run it on a phone with Expo Go
 
@@ -49,17 +49,19 @@ That checks stat changes (including the 0–100 clamp), flag set/clear, scenes s
 ## How a life plays
 
 1. The gallery shows the careers, how many endings you have found (“2 of 9”), and which titles are unlocked.
-2. A scene is a picture: the character in a room, a line of about ten words, and two or three icon buttons. Swipe left for the first choice or right for the last one, or tap a button. Labels are one to four words.
-3. The character shows how the life is going. Tired eyes, a limp after injury, worn or sharper clothes, a small home in the corner, and friends who fade in or out. Stats are icon pips, not a column of numbers.
-4. Between life stages, a montage of about three seconds ticks the years forward.
-5. Two moments in each career are mini-games. The result picks a choice, so it still changes stats and flags:
+2. A stage opens in the first person: “You wake up as Maya, 16.” The cartoon is the body you are in. A strip marks the day: wake, meal, commute, work, evening, sleep.
+3. Home, food, and the trip to work are pictures. A cramped shared room, a family table, chili at 5 a.m., a packed lunch, a bus. You pick among what that life can actually afford. Bills, body pain, loneliness, family, pride, and small joys show up as those choices.
+4. Work scenes stay short: the character in a room, about ten words, and two or three icon buttons. Swipe left for the first choice or right for the last one, or tap. The day strip sits on “work.”
+5. The character shows how the life is going. Tired eyes, a limp after injury, worn or sharper clothes, and friends who fade in or out. Stats are icon pips, not a column of numbers.
+6. Between life stages, a montage of about three seconds ticks the years forward. The next morning’s home may be a different room.
+7. Two moments in each career are mini-games. The result picks a choice, so it still changes stats and flags:
    - Dancer: tap a rehearsal beat, and hold a pose that can hurt you if you miss.
    - Firefighter: spray a hose on the flames, and move through smoke toward someone before the clock runs out.
    - Teacher: drag the class into their seats, and calm a meltdown before the bell.
-6. A fact is one short line with a Real fact label. The source stays on the scene data.
-7. The next scene is the next one in the career file whose conditions match. Scenes that share a `group` are alternatives; only one of them plays.
-8. A terminal scene ends the run. The end-of-life card shows the career, age, ending title, happiness score, icon stats, and up to four key moments.
-9. **Share this life** captures that card as an image and opens the native share sheet (on the web, it shares the image when the browser allows it, otherwise it downloads the PNG). The unlocked ending is stored locally.
+8. A fact is one short line with a Real fact label. The source stays on the scene data.
+9. The next scene is the next one in the career file whose conditions match. Scenes that share a `group` are alternatives; only one of them plays. Day beats are ordinary scenes with a `beat`, woven in by `weaveRoutine` in `src/content/routine.ts`.
+10. A terminal scene ends the run. The end-of-life card shows the career, age, ending title, happiness score, icon stats, and up to four key moments.
+11. **Share this life** captures that card as an image and opens the native share sheet (on the web, it shares the image when the browser allows it, otherwise it downloads the PNG). The unlocked ending is stored locally.
 
 Happiness on the card is a weighted score, not the raw Happiness stat:
 
@@ -119,6 +121,12 @@ type Scene = {
             | "sad" | "determined" | "tired" | "angry" | "hopeful";
   setting?: "studio" | "stage" | "apartment" | "classroom"
           | "hallway" | "station" | "fire" | "street";
+  beat?: "wake" | "meal" | "commute" | "work" | "evening" | "sleep";
+  role?: string;              // "ballet student" in "You wake up as Maya, 16."
+  home?: "shared" | "family" | "flat" | "house" | "bunk";
+                              // omit and home follows money and flags
+  food?: "rice" | "banana" | "eggs" | "noodles" | "salad" | "toast"
+       | "packed" | "leftovers" | "cereal" | "chili" | "coffee" | "bar";
   kind?: "story" | "fact";    // "fact" renders a one-line Real fact
   source?: string;            // required when kind is "fact"; kept in data, not shown as a paragraph
   condition?: Condition;      // omit to always be eligible
@@ -174,6 +182,7 @@ type Ending = {
 - Story `body` text stays around ten words. Choice `label`s stay one to four words. The picture, the face, and the icon do the explaining.
 - Put a fact in the flow as its own scene with `kind: "fact"`, a `source`, a one-line `body`, and one continue choice. Keep the fact specific and sourced. Do not invent statistics.
 - Give each career at least two `miniGame` scenes. Point `success`, `partial`, and `fail` at real choice ids so the game feeds the same stat and flag system as a tap. Do not teach the engine about the job.
+- A day around the job is more scenes, not a special engine. `src/content/routine.ts` inserts wake, meal, commute, evening, and sleep into every stage. Copy that shape for a new career, or add the beats by hand. Keep the first option of a day beat from accidentally setting an ending flag. Set `food` on meals and `home` when the place is part of the story. Leave `home` empty when it should grow with money.
 - A terminal scene is the ending the player reads. Point `endingId` at an ending. If the run ever exhausts the scenes without a terminal scene, the engine picks the highest-priority matching ending anyway.
 - One ending must have **no** `condition`, so a run can always finish.
 - `moment` strings are the key moments on the recap. The card keeps at most four, spread across the run.
@@ -202,7 +211,7 @@ Save data is under the AsyncStorage keys `lifeswap.progress.v1` (unlocked ending
 | Path | What it is |
 | --- | --- |
 | `src/engine/` | Rules: stats, flags, scene picking, endings. No React. |
-| `src/content/` | The three careers. |
+| `src/content/` | The three careers, plus `routine.ts` for the day around the job. |
 | `src/screens/` | Gallery, intro, play, recap. |
 | `src/components/` | Cartoon face, rooms, icon choices, montages, recap card. |
 | `src/minigames/` | Rhythm, balance, hose, smoke rescue, seating, meltdown. |

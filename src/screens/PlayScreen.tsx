@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChoiceDeck } from '@/components/ChoiceDeck';
+import { DayScene, DayStrip, LivingAs } from '@/components/DayLife';
 import { LifeSet } from '@/components/LifeSet';
 import { Montage } from '@/components/Montage';
 import { StatPips } from '@/components/StatPips';
@@ -14,6 +15,9 @@ import { MiniGameHost } from '@/minigames/MiniGameHost';
 import type { GameBand } from '@/minigames/types';
 import { saveLastRun } from '@/storage/progress';
 import { setLastRun } from '@/state/lastRun';
+import { STAGE_ROLE } from '@/content/routine';
+import { resolveHome } from '@/theme/life';
+import { presence } from '@/theme/presence';
 import { fonts } from '@/theme/game';
 
 type Phase = 'scene' | 'fact' | 'game' | 'montage' | 'stamp';
@@ -121,6 +125,9 @@ export function PlayScreen() {
   }
 
   const expression: Expression = phase === 'stamp' && stamp ? stamp.expression : (scene?.expression ?? 'neutral');
+  const lived = presence(run.stats, run.flags);
+  const home = resolveHome(life.id, run.stats, run.flags, scene?.home);
+  const role = scene?.role ?? STAGE_ROLE[life.id]?.[scene?.stage ?? 'training'];
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.paper, paddingTop: insets.top + 8, paddingBottom: insets.bottom + 12 }]}>
@@ -132,6 +139,12 @@ export function PlayScreen() {
         <Text style={[styles.age, { color: theme.ink, fontFamily: fonts.display }]}>{scene?.age ?? run.age}</Text>
       </View>
       <StatPips stats={run.stats} deltas={deltas} ink={theme.ink} />
+      {phase !== 'montage' && scene ? (
+        <>
+          <LivingAs name={life.character.name.split(' ')[0]} age={scene.age} role={role} beat={scene.beat} ink={theme.ink} />
+          <DayStrip beat={scene.beat ?? 'work'} ink={theme.ink} primary={theme.primary} />
+        </>
+      ) : null}
       {phase === 'game' && scene ? (
         <Text style={[styles.caption, { color: theme.ink, fontFamily: fonts.display }]}>{scene.body}</Text>
       ) : null}
@@ -156,6 +169,16 @@ export function PlayScreen() {
             secondary={theme.secondary}
             onDone={(band) => onGame(scene, band)}
           />
+        ) : scene?.beat ? (
+          <DayScene
+            beat={scene.beat}
+            home={home}
+            food={scene.food}
+            look={life.character}
+            expression={expression}
+            theme={theme}
+            presence={lived}
+          />
         ) : (
           <LifeSet
             look={career.character}
@@ -164,6 +187,7 @@ export function PlayScreen() {
             setting={scene?.setting}
             stats={run.stats}
             flags={run.flags}
+            careerId={life.id}
           />
         )}
       </View>

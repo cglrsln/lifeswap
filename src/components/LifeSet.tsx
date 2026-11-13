@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { CharacterFace } from '@/components/CharacterFace';
 import type { CareerTheme, CharacterLook, Expression, SettingId, Stats } from '@/engine/types';
+import { resolveHome } from '@/theme/life';
 import { presence } from '@/theme/presence';
 
 type Props = {
@@ -10,17 +11,19 @@ type Props = {
   setting?: SettingId;
   stats: Stats;
   flags: string[];
+  careerId: string;
 };
 
-export function LifeSet({ look, expression, theme, setting = 'street', stats, flags }: Props) {
+export function LifeSet({ look, expression, theme, setting = 'street', stats, flags, careerId }: Props) {
   const state = presence(stats, flags);
+  const home = resolveHome(careerId, stats, flags);
   const friendOpacity = (slot: number) => Math.max(0, Math.min(1, state.friendStrength - slot));
 
   return (
     <View style={[styles.stage, backdrop(setting, theme)]}>
       <Decor setting={setting} theme={theme} />
       <View style={styles.home} accessibilityLabel={state.outfit === 'sharp' ? 'A nicer home' : state.outfit === 'worn' ? 'A worn home' : 'Home'}>
-        <HomeMark tier={state.outfit} ink={theme.ink} />
+        <HomeMark tier={state.outfit} home={home} ink={theme.ink} />
       </View>
       <View style={[styles.hero, state.limp && styles.limp]}>
         <View style={[styles.friendBeside, { opacity: friendOpacity(0) }]}>
@@ -102,14 +105,15 @@ function Decor({ setting, theme }: { setting: SettingId; theme: CareerTheme }) {
   return <View style={[styles.window, { borderColor: theme.ink, backgroundColor: '#C9E7FF' }]} />;
 }
 
-function HomeMark({ tier, ink }: { tier: 'worn' | 'plain' | 'sharp'; ink: string }) {
+function HomeMark({ tier, home, ink }: { tier: 'worn' | 'plain' | 'sharp'; home: string; ink: string }) {
+  const roof = home === 'house' ? '#7DBF6A' : home === 'bunk' ? '#E23B2F' : home === 'shared' ? '#8d6a62' : tier === 'sharp' ? '#FFC43D' : ink;
   return (
     <View style={styles.houseWrap}>
-      <View style={[styles.roof, { borderBottomColor: tier === 'sharp' ? '#FFC43D' : tier === 'worn' ? '#8d6a62' : ink }]} />
-      <View style={[styles.house, { backgroundColor: tier === 'sharp' ? '#fff' : '#F3E6D8', borderColor: ink }]}>
-        <View style={[styles.houseDoor, { backgroundColor: tier === 'worn' ? '#5c4038' : '#E23B2F' }]} />
+      <View style={[styles.roof, { borderBottomColor: roof }]} />
+      <View style={[styles.house, { backgroundColor: home === 'house' ? '#fff' : '#F3E6D8', borderColor: ink, width: home === 'house' ? 34 : 26 }]}>
+        <View style={[styles.houseDoor, { backgroundColor: home === 'shared' || tier === 'worn' ? '#5c4038' : '#E23B2F' }]} />
       </View>
-      {tier === 'sharp' ? <View style={styles.flower} /> : null}
+      {home === 'house' ? <View style={styles.flower} /> : null}
     </View>
   );
 }
