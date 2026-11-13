@@ -55,14 +55,61 @@ export type Condition = {
   maxStats?: Partial<Stats>;
 };
 
+export type ChoiceIcon =
+  | 'check'
+  | 'x'
+  | 'heart'
+  | 'star'
+  | 'shield'
+  | 'flame'
+  | 'book'
+  | 'users'
+  | 'home'
+  | 'coin'
+  | 'bed'
+  | 'music'
+  | 'foot'
+  | 'megaphone'
+  | 'door'
+  | 'apple'
+  | 'clock'
+  | 'hands'
+  | 'walk'
+  | 'crown'
+  | 'teach'
+  | 'water'
+  | 'alert';
+
+export type SettingId =
+  | 'studio'
+  | 'stage'
+  | 'apartment'
+  | 'classroom'
+  | 'hallway'
+  | 'station'
+  | 'fire'
+  | 'street';
+
+export type MiniGameKind = 'rhythm' | 'balance' | 'hose' | 'rescue' | 'seating' | 'meltdown';
+
+/** The mini-game picks one of these choice ids. Effects still live on the choice. */
+export type MiniGameSpec = {
+  kind: MiniGameKind;
+  success: string;
+  partial: string;
+  fail: string;
+};
+
 export type Choice = {
   id: string;
+  /** One to four words on the icon button. */
   label: string;
+  icon?: ChoiceIcon;
   effects?: Partial<Stats>;
   setFlags?: string[];
   clearFlags?: string[];
   expression?: Expression;
-  /** Consequence line shown before the next scene. Omit to advance immediately. */
+  /** Short stamp after the choice. Omit to advance immediately. */
   result?: string;
   /** Remembered on the end-of-life card. */
   moment?: string;
@@ -80,13 +127,17 @@ export type Scene = {
   stage: LifeStage;
   age: number;
   title: string;
+  /** At most about ten words. The picture does the rest. */
   body: string;
   expression: Expression;
+  setting?: SettingId;
   /** Fact scenes render as a Real Fact card. */
   kind?: 'story' | 'fact';
   /** Citation shown on a fact card. */
   source?: string;
   condition?: Condition;
+  /** When set, the play screen runs this game and then applies the matching choice. */
+  miniGame?: MiniGameSpec;
   choices: Choice[];
   /** The run ends after this scene's choice is applied. */
   terminal?: boolean;

@@ -3,7 +3,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CharacterFace } from '@/components/CharacterFace';
 import { ShadowCard } from '@/components/ShadowCard';
-import { StatBars } from '@/components/StatBars';
+import { StatPips } from '@/components/StatPips';
 import { getCareer } from '@/content';
 import { fonts } from '@/theme/game';
 
@@ -45,13 +45,11 @@ export function IntroScreen() {
       <Text style={[styles.intro, { color: theme.ink }]}>{career.intro}</Text>
       <ShadowCard ink={theme.ink} background="#fff">
         <View style={styles.stats}>
-          <Text style={[styles.statsTitle, { color: theme.ink }]}>Where this life starts</Text>
-          <StatBars stats={career.startStats} ink={theme.ink} />
+          <Text style={[styles.statsTitle, { color: theme.ink }]}>How you start</Text>
+          <StatPips stats={career.startStats} ink={theme.ink} />
         </View>
       </ShadowCard>
-      <Text style={[styles.note, { color: theme.deep }]}>
-        Choices move these five stats and can open or close scenes later. Early decisions stick.
-      </Text>
+      <Text style={[styles.note, { color: theme.deep }]}>Swipe or tap. Early choices still follow you.</Text>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Start ${career.character.name}'s life`}

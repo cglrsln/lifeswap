@@ -285,6 +285,9 @@ describe('careers', () => {
       assert.ok(state.endingId);
       assert.ok(career.endings.some((ending) => ending.id === state.endingId));
       assert.ok(state.sceneLog.length >= 14, `${career.id} played ${state.sceneLog.length} scenes`);
+      const games = career.scenes.filter((scene) => scene.miniGame);
+      assert.ok(games.length >= 2, `${career.id} needs two mini-games`);
+      assert.ok(new Set(games.map((scene) => scene.miniGame?.kind)).size >= 2);
       const ages = state.sceneLog.map((id) => career.scenes.find((scene) => scene.id === id)!.age);
       for (let i = 1; i < ages.length; i += 1) {
         assert.ok(ages[i] >= ages[i - 1], `${career.id} age went backwards at ${state.sceneLog[i]}`);

@@ -237,9 +237,34 @@ export function validateCareer(career: Career): string[] {
     for (const choice of scene.choices) {
       if (choiceIds.has(choice.id)) errors.push(`Duplicate choice "${choice.id}" in "${scene.id}"`);
       choiceIds.add(choice.id);
+      const labelWords = wordCount(choice.label);
+      if (labelWords < 1 || labelWords > 4) {
+        errors.push(`Choice "${scene.id}.${choice.id}" label is ${labelWords} words; use 1 to 4`);
+      }
+      if (choice.result && wordCount(choice.result) > 8) {
+        errors.push(`Choice "${scene.id}.${choice.id}" result is too long`);
+      }
     }
     if (scene.kind === 'fact' && !scene.source) {
       errors.push(`Fact scene "${scene.id}" is missing a source`);
+    }
+    const bodyWords = wordCount(scene.body);
+    if (scene.kind === 'fact' && bodyWords > 16) {
+      errors.push(`Fact "${scene.id}" is ${bodyWords} words; keep it to one short line`);
+    }
+    if (scene.kind !== 'fact' && bodyWords > 10) {
+      errors.push(`Scene "${scene.id}" body is ${bodyWords} words; keep it to about 10`);
+    }
+    if (wordCount(scene.title) > 6) {
+      errors.push(`Scene "${scene.id}" title is too long`);
+    }
+    if (scene.miniGame) {
+      const ids = [scene.miniGame.success, scene.miniGame.partial, scene.miniGame.fail];
+      for (const outcomeId of ids) {
+        if (!scene.choices.some((choice) => choice.id === outcomeId)) {
+          errors.push(`Mini-game on "${scene.id}" points at missing choice "${outcomeId}"`);
+        }
+      }
     }
     if (scene.terminal && !scene.endingId) {
       errors.push(`Terminal scene "${scene.id}" needs an endingId`);
@@ -274,6 +299,10 @@ export function validateCareer(career: Career): string[] {
     if (value < 0 || value > 100) errors.push(`Starting ${key} is out of range`);
   }
   return errors;
+}
+
+function wordCount(value: string): number {
+  return value.trim().split(/\s+/).filter(Boolean).length;
 }
 
 export function playUntilDone(

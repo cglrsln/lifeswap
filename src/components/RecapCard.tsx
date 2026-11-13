@@ -1,10 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { CharacterFace } from '@/components/CharacterFace';
-import { STAT_META, fonts } from '@/theme/game';
+import { StatPips } from '@/components/StatPips';
+import { fonts } from '@/theme/game';
+import { presence } from '@/theme/presence';
 import type { RunSummary } from '@/engine/types';
 
 export function RecapCard({ summary }: { summary: RunSummary }) {
   const theme = summary.theme;
+  const state = presence(summary.stats, []);
   return (
     <View style={[styles.card, { backgroundColor: theme.paper, borderColor: theme.ink }]}>
       <View style={[styles.banner, { backgroundColor: theme.primary }]}>
@@ -12,7 +15,16 @@ export function RecapCard({ summary }: { summary: RunSummary }) {
         <Text style={styles.bannerCareer}>{summary.careerName.toUpperCase()}</Text>
       </View>
       <View style={styles.hero}>
-        <CharacterFace look={summary.look} expression="proud" shirt={theme.primary} ink={theme.ink} size={108} />
+        <CharacterFace
+          look={summary.look}
+          expression={state.tired ? 'tired' : 'proud'}
+          shirt={theme.primary}
+          ink={theme.ink}
+          size={108}
+          tired={state.tired}
+          limp={state.limp}
+          outfit={state.outfit}
+        />
         <View style={styles.heroCopy}>
           <Text style={[styles.name, { color: theme.ink }]}>{summary.characterName}</Text>
           <Text style={[styles.meta, { color: theme.deep }]}>
@@ -25,12 +37,7 @@ export function RecapCard({ summary }: { summary: RunSummary }) {
       <Text style={[styles.ending, { color: theme.deep }]}>{summary.endingTitle}</Text>
       <Text style={[styles.summary, { color: theme.ink }]}>{summary.endingSummary}</Text>
       <View style={styles.stats}>
-        {STAT_META.map((meta) => (
-          <View key={meta.key} style={styles.stat}>
-            <Text style={[styles.statValue, { color: theme.ink }]}>{summary.stats[meta.key]}</Text>
-            <Text style={[styles.statLabel, { color: theme.deep }]}>{meta.label}</Text>
-          </View>
-        ))}
+        <StatPips stats={summary.stats} ink={theme.ink} showNumbers />
       </View>
       {summary.moments.length > 0 ? (
         <View style={styles.moments}>

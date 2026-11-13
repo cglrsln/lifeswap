@@ -1,4 +1,4 @@
-import { Circle, Ellipse, Path, Svg } from 'react-native-svg';
+import { Circle, Ellipse, Path, Rect, Svg } from 'react-native-svg';
 import type { CharacterLook, Expression } from '@/engine/types';
 
 type Props = {
@@ -7,12 +7,39 @@ type Props = {
   shirt: string;
   ink?: string;
   size?: number;
+  tired?: boolean;
+  limp?: boolean;
+  outfit?: 'worn' | 'plain' | 'sharp';
 };
 
-export function CharacterFace({ look, expression, shirt, ink = '#241433', size = 150 }: Props) {
+export function CharacterFace({
+  look,
+  expression,
+  shirt,
+  ink = '#241433',
+  size = 150,
+  tired = false,
+  limp = false,
+  outfit = 'plain',
+}: Props) {
+  const faceExpression = expression;
   return (
-    <Svg width={size} height={size * 1.08} viewBox="0 0 200 216" accessibilityRole="image" accessibilityLabel={`${look.name} looking ${expression}`}>
-      <Ellipse cx="100" cy="196" rx="78" ry="28" fill={shirt} stroke={ink} strokeWidth="4" />
+    <Svg
+      width={size}
+      height={size * 1.08}
+      viewBox="0 0 200 216"
+      accessibilityRole="image"
+      accessibilityLabel={`${look.name} looking ${faceExpression}`}
+    >
+      <Ellipse cx="100" cy="196" rx="78" ry="28" fill={outfit === 'worn' ? '#8d6a62' : shirt} stroke={ink} strokeWidth="4" />
+      {outfit === 'worn' ? <Rect x="118" y="186" width="16" height="12" rx="2" fill="#5c4038" /> : null}
+      {outfit === 'sharp' ? (
+        <>
+          <Path d="M86 176 Q100 164 114 176" stroke="#fff" strokeWidth="4" fill="none" />
+          <Circle cx="100" cy="188" r="4" fill="#FFC43D" stroke={ink} strokeWidth="1.5" />
+        </>
+      ) : null}
+      {limp ? <Path d="M146 168 L170 208" stroke={ink} strokeWidth="5" strokeLinecap="round" /> : null}
       <Path d="M78 150 L78 176 Q100 188 122 176 L122 150" fill={look.skin} stroke={ink} strokeWidth="4" />
       {look.style === 'bob' ? (
         <Path
@@ -33,9 +60,15 @@ export function CharacterFace({ look, expression, shirt, ink = '#241433', size =
       <Circle cx="100" cy="112" r="58" fill={look.skin} stroke={ink} strokeWidth="4" />
       <Bangs look={look} ink={ink} />
       {look.style === 'bun' ? <Circle cx="100" cy="40" r="20" fill={look.hair} stroke={ink} strokeWidth="4" /> : null}
-      <Brows expression={expression} ink={ink} />
-      <Eyes expression={expression} ink={ink} />
-      <Mouth expression={expression} lip={look.lip} ink={ink} />
+      <Brows expression={faceExpression} ink={ink} />
+      <Eyes expression={faceExpression} ink={ink} tired={tired} />
+      <Mouth expression={faceExpression} lip={look.lip} ink={ink} />
+      {tired ? (
+        <>
+          <Ellipse cx="74" cy="128" rx="12" ry="5" fill="#000" opacity={0.13} />
+          <Ellipse cx="126" cy="128" rx="12" ry="5" fill="#000" opacity={0.13} />
+        </>
+      ) : null}
       {(expression === 'happy' || expression === 'proud' || expression === 'hopeful') && (
         <>
           <Ellipse cx="62" cy="132" rx="10" ry="6" fill={look.blush} opacity="0.85" />
@@ -107,7 +140,7 @@ function Brows({ expression, ink }: { expression: Expression; ink: string }) {
   );
 }
 
-function Eyes({ expression, ink }: { expression: Expression; ink: string }) {
+function Eyes({ expression, ink, tired }: { expression: Expression; ink: string; tired?: boolean }) {
   if (expression === 'happy' || expression === 'proud') {
     return (
       <>
